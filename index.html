@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -41,7 +40,7 @@
 
   <div class="selector-box">
     <select id="key-select" onchange="updateFretboard()">
-      <option value="C">C</option><option value="Csharp">C#</option><option value="D">D</option><option value="Dsharp">D#</option><option value="E">E</option><option value="F">F</option><option value="Fsharp">F#</option><option value="G">G</option><option value="Gsharp">G#</option><option value="A">A</option><option value="Asharp">A#</option><option value="B">B</option>
+      <option value="C">C</option><option value="C#">C#</option><option value="D">D</option><option value="D#">D#</option><option value="E">E</option><option value="F">F</option><option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
     </select>
 
     <select id="type-select" onchange="updateScaleOptions(); updateFretboard();">
@@ -66,7 +65,18 @@ const scaleOptionsMap = {
 };
 
 const fretboardImageMap = {
-  'C-major-major': 'C_major_fretboard_reversed.png'
+  'C-major-major': 'c_major_fretboard.png',
+  'C#-major-major': 'csharp_major_fretboard.png',
+  'D-major-major': 'd_major_fretboard.png',
+  'D#-major-major': 'dsharp_major_fretboard.png',
+  'E-major-major': 'e_major_fretboard.png',
+  'F-major-major': 'f_major_fretboard.png',
+  'F#-major-major': 'fsharp_major_fretboard.png',
+  'G-major-major': 'g_major_fretboard.png',
+  'G#-major-major': 'gsharp_major_fretboard.png',
+  'A-major-major': 'a_major_fretboard.png',
+  'A#-major-major': 'asharp_major_fretboard.png',
+  'B-major-major': 'b_major_fretboard.png'
 };
 
 function updateScaleOptions() {
