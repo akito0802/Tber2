@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tber Scale Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #ffffff;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .selector-box {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: center; margin-bottom: 2rem;
+    }
+    select {
+      padding: 0.5rem; font-size: 1rem;
+      border-radius: 0.5rem; border: 1px solid #ccc;
+    }
+    #fretboard {
+      max-width: 100%; width: 780px; height: auto;
+      border: 1px solid #ccc; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .placeholder {
+      width: 780px; height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      background: #fafafa; border: 1px dashed #bbb; border-radius: 8px; color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1><span style="color:#12f7ff;">T</span><span style="color:#ff00e0;">b</span>er Scale</h1>
+
+  <div class="selector-box">
+    <select id="key-select" onchange="updateFretboard()">
+      <option value="C">C</option><option value="C#">C#</option><option value="D">D</option><option value="D#">D#</option><option value="E">E</option><option value="F">F</option><option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
+    </select>
+
+    <select id="type-select" onchange="updateScaleOptions(); updateFretboard();">
+      <option value="major">Major</option>
+      <option value="minor">Minor</option>
+    </select>
+
+    <select id="scale-select" onchange="updateFretboard()"></select>
+  </div>
+
+  <div id="fretboard-container"></div>
+
+<script>
+const scaleSelect = document.getElementById('scale-select');
+const fretboardContainer = document.getElementById('fretboard-container');
+
+const scaleOptionsMap = {
+  major: ['Major','Pentatonic','Blues'],
+  minor: ['Natural Minor','Harmonic Minor','Melodic Minor','Pentatonic','Blues']
+};
+
+const fretboardImageMap = {
+  'C-major-major': 'c_major_major_fretboard.png',
+  'C-major-pentatonic': 'c_major_pentatonic_fretboard.png',
+  'C-major-blues': 'c_major_blues_fretboard.png',
+  'C#-major-major': 'csharp_major_major_fretboard.png',
+  'C#-major-pentatonic': 'csharp_major_pentatonic_fretboard.png',
+  'C#-major-blues': 'csharp_major_blues_fretboard.png',
+  'D-major-major': 'd_major_major_fretboard.png',
+  'D-major-pentatonic': 'd_major_pentatonic_fretboard.png',
+  'D-major-blues': 'd_major_blues_fretboard.png',
+  'D#-major-major': 'dsharp_major_major_fretboard.png',
+  'D#-major-pentatonic': 'dsharp_major_pentatonic_fretboard.png',
+  'D#-major-blues': 'dsharp_major_blues_fretboard.png',
+  'E-major-major': 'e_major_major_fretboard.png',
+  'E-major-pentatonic': 'e_major_pentatonic_fretboard.png',
+  'E-major-blues': 'e_major_blues_fretboard.png',
+  'F-major-major': 'f_major_major_fretboard.png',
+  'F-major-pentatonic': 'f_major_pentatonic_fretboard.png',
+  'F-major-blues': 'f_major_blues_fretboard.png',
+  'F#-major-major': 'fsharp_major_major_fretboard.png',
+  'F#-major-pentatonic': 'fsharp_major_pentatonic_fretboard.png',
+  'F#-major-blues': 'fsharp_major_blues_fretboard.png',
+  'G-major-major': 'g_major_major_fretboard.png',
+  'G-major-pentatonic': 'g_major_pentatonic_fretboard.png',
+  'G-major-blues': 'g_major_blues_fretboard.png',
+  'G#-major-major': 'gsharp_major_major_fretboard.png',
+  'G#-major-pentatonic': 'gsharp_major_pentatonic_fretboard.png',
+  'G#-major-blues': 'gsharp_major_blues_fretboard.png',
+  'A-major-major': 'a_major_major_fretboard.png',
+  'A-major-pentatonic': 'a_major_pentatonic_fretboard.png',
+  'A-major-blues': 'a_major_blues_fretboard.png',
+  'A#-major-major': 'asharp_major_major_fretboard.png',
+  'A#-major-pentatonic': 'asharp_major_pentatonic_fretboard.png',
+  'A#-major-blues': 'asharp_major_blues_fretboard.png',
+  'B-major-major': 'b_major_major_fretboard.png',
+  'B-major-pentatonic': 'b_major_pentatonic_fretboard.png',
+  'B-major-blues': 'b_major_blues_fretboard.png',
+  'C-minor-natural-minor': 'c_minor_natural_fretboard.png',
+  'C#-minor-natural-minor': 'csharp_minor_natural_fretboard.png',
+  'D-minor-natural-minor': 'd_minor_natural_fretboard.png',
+  'D#-minor-natural-minor': 'dsharp_minor_natural_fretboard.png',
+  'E-minor-natural-minor': 'e_minor_natural_fretboard.png',
+  'F-minor-natural-minor': 'f_minor_natural_fretboard.png',
+  'F#-minor-natural-minor': 'fsharp_minor_natural_fretboard.png',
+  'G-minor-natural-minor': 'g_minor_natural_fretboard.png',
+  'G#-minor-natural-minor': 'gsharp_minor_natural_fretboard.png',
+  'A-minor-natural-minor': 'a_minor_natural_fretboard.png',
+  'A#-minor-natural-minor': 'asharp_minor_natural_fretboard.png',
+  'B-minor-natural-minor': 'b_minor_natural_fretboard.png',
+  'C-minor-harmonic-minor': 'c_minor_harmonic_fretboard.png',
+  'C#-minor-harmonic-minor': 'csharp_minor_harmonic_fretboard.png',
+  'D-minor-harmonic-minor': 'd_minor_harmonic_fretboard.png',
+  'D#-minor-harmonic-minor': 'dsharp_minor_harmonic_fretboard.png',
+  'E-minor-harmonic-minor': 'e_minor_harmonic_fretboard.png',
+  'F-minor-harmonic-minor': 'f_minor_harmonic_fretboard.png',
+  'F#-minor-harmonic-minor': 'fsharp_minor_harmonic_fretboard.png',
+  'G-minor-harmonic-minor': 'g_minor_harmonic_fretboard.png',
+  'G#-minor-harmonic-minor': 'gsharp_minor_harmonic_fretboard.png',
+  'A-minor-harmonic-minor': 'a_minor_harmonic_fretboard.png',
+  'A#-minor-harmonic-minor': 'asharp_minor_harmonic_fretboard.png',
+  'B-minor-harmonic-minor': 'b_minor_harmonic_fretboard.png',
+  'C-minor-melodic-minor': 'c_minor_melodic_fretboard.png',
+  'C#-minor-melodic-minor': 'csharp_minor_melodic_fretboard.png',
+  'D-minor-melodic-minor': 'd_minor_melodic_fretboard.png',
+  'D#-minor-melodic-minor': 'dsharp_minor_melodic_fretboard.png',
+  'E-minor-melodic-minor': 'e_minor_melodic_fretboard.png',
+  'F-minor-melodic-minor': 'f_minor_melodic_fretboard.png',
+  'F#-minor-melodic-minor': 'fsharp_minor_melodic_fretboard.png',
+  'G-minor-melodic-minor': 'g_minor_melodic_fretboard.png',
+  'G#-minor-melodic-minor': 'gsharp_minor_melodic_fretboard.png',
+  'A-minor-melodic-minor': 'a_minor_melodic_fretboard.png',
+  'A#-minor-melodic-minor': 'asharp_minor_melodic_fretboard.png',
+  'B-minor-melodic-minor': 'b_minor_melodic_fretboard.png',
+  'C-minor-pentatonic': 'c_minor_pentatonic_fretboard.png',
+  'C#-minor-pentatonic': 'csharp_minor_pentatonic_fretboard.png',
+  'D-minor-pentatonic': 'd_minor_pentatonic_fretboard.png',
+  'D#-minor-pentatonic': 'dsharp_minor_pentatonic_fretboard.png',
+  'E-minor-pentatonic': 'e_minor_pentatonic_fretboard.png',
+  'F-minor-pentatonic': 'f_minor_pentatonic_fretboard.png',
+  'F#-minor-pentatonic': 'fsharp_minor_pentatonic_fretboard.png',
+  'G-minor-pentatonic': 'g_minor_pentatonic_fretboard.png',
+  'G#-minor-pentatonic': 'gsharp_minor_pentatonic_fretboard.png',
+  'A-minor-pentatonic': 'a_minor_pentatonic_fretboard.png',
+  'A#-minor-pentatonic': 'asharp_minor_pentatonic_fretboard.png',
+  'B-minor-pentatonic': 'b_minor_pentatonic_fretboard.png',
+  'C-minor-blues': 'c_minor_blues_fretboard.png',
+  'C#-minor-blues': 'csharp_minor_blues_fretboard.png',
+  'D-minor-blues': 'd_minor_blues_fretboard.png',
+  'D#-minor-blues': 'dsharp_minor_blues_fretboard.png',
+  'E-minor-blues': 'e_minor_blues_fretboard.png',
+  'F-minor-blues': 'f_minor_blues_fretboard.png',
+  'F#-minor-blues': 'fsharp_minor_blues_fretboard.png',
+  'G-minor-blues': 'g_minor_blues_fretboard.png',
+  'G#-minor-blues': 'gsharp_minor_blues_fretboard.png',
+  'A-minor-blues': 'a_minor_blues_fretboard.png',
+  'A#-minor-blues': 'asharp_minor_blues_fretboard.png',
+  'B-minor-blues': 'b_minor_blues_fretboard.png'
+};
+
+function updateScaleOptions() {
+  const type = document.getElementById('type-select').value;
+  const opts = scaleOptionsMap[type] || [];
+  scaleSelect.innerHTML = '';
+  opts.forEach(opt => {
+    const o = document.createElement('option');
+    o.text = opt;
+    o.value = opt.toLowerCase().replace(/ /g,'-');
+    scaleSelect.add(o);
+  });
+  scaleSelect.selectedIndex = 0;
+}
+
+function updateFretboard(){
+  const key = document.getElementById('key-select').value;
+  const type = document.getElementById('type-select').value;
+  const scale = document.getElementById('scale-select').value;
+  const imgKey = `${key}-${type}-${scale}`;
+  const src = fretboardImageMap[imgKey];
+  fretboardContainer.innerHTML='';
+  if(src){
+    const img=document.createElement('img');
+    img.id='fretboard'; img.src=src; img.alt=imgKey;
+    fretboardContainer.appendChild(img);
+  }else{
+    const ph=document.createElement('div'); ph.className='placeholder';
+    ph.textContent='Image not available'; fretboardContainer.appendChild(ph);
+  }
+}
+
+updateScaleOptions();
+updateFretboard();
+</script>
+</body>
+</html>
