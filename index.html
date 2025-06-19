@@ -2,105 +2,69 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tber Scale Viewer</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #ffffff;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 { font-size: 3rem; margin-bottom: 1rem; }
-    .selector-box {
-      display: flex; flex-wrap: wrap; gap: 1rem;
-      justify-content: center; margin-bottom: 2rem;
-    }
-    select {
-      padding: 0.5rem; font-size: 1rem;
-      border-radius: 0.5rem; border: 1px solid #ccc;
-    }
-    #fretboard {
-      max-width: 100%; width: 780px; height: auto;
-      border: 1px solid #ccc; border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .placeholder {
-      width: 780px; height: 180px;
-      display: flex; align-items: center; justify-content: center;
-      background: #fafafa; border: 1px dashed #bbb; border-radius: 8px; color: #777;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Tber - Major Scales</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background: #fff;
+        }
+        select {
+            margin: 10px;
+            padding: 5px;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 90%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-  <h1><span style="color:#12f7ff;">T</span><span style="color:#ff00e0;">b</span>er Scale</h1>
+    <h1>Tber - Major Scales</h1>
+    <div>
+        <select id="key-select">
+            <option value="C">C</option>
+            <option value="Csharp">C♯</option>
+            <option value="D">D</option>
+            <option value="Dsharp">D♯</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="Fsharp">F♯</option>
+            <option value="G">G</option>
+            <option value="Gsharp">G♯</option>
+            <option value="A">A</option>
+            <option value="Asharp">A♯</option>
+            <option value="B">B</option>
+        </select>
+        <img id="fretboard-image" src="images/C_major_fretboard_reversed.png" alt="Fretboard Image" />
+    </div>
 
-  <div class="selector-box">
-    <select id="key-select" onchange="updateFretboard()">
-      <option value="C">C</option><option value="Csharp">C#</option><option value="D">D</option><option value="Dsharp">D#</option><option value="E">E</option><option value="F">F</option><option value="Fsharp">F#</option><option value="G">G</option><option value="Gsharp">G#</option><option value="A">A</option><option value="Asharp">A#</option><option value="B">B</option>
-    </select>
+    <script>
+        const imageMap = {
+            "C": "C_major_fretboard_reversed.png",
+            "Csharp": "Csharp_major_fretboard_reversed.png",
+            "D": "D_major_fretboard_reversed.png",
+            "Dsharp": "Dsharp_major_fretboard_reversed.png",
+            "E": "E_major_fretboard_reversed.png",
+            "F": "F_major_fretboard_reversed.png",
+            "Fsharp": "Fsharp_major_fretboard_reversed.png",
+            "G": "G_major_fretboard_reversed.png",
+            "Gsharp": "Gsharp_major_fretboard_reversed.png",
+            "A": "A_major_fretboard_reversed.png",
+            "Asharp": "Asharp_major_fretboard_reversed.png",
+            "B": "B_major_fretboard_reversed.png"
+        };
 
-    <select id="type-select" onchange="updateScaleOptions(); updateFretboard();">
-      <option value="major">Major</option>
-      <option value="minor">Minor</option>
-      <option value="church">Church Mode</option>
-    </select>
+        const keySelect = document.getElementById("key-select");
+        const img = document.getElementById("fretboard-image");
 
-    <select id="scale-select" onchange="updateFretboard()"></select>
-  </div>
-
-  <div id="fretboard-container"></div>
-
-<script>
-const scaleSelect = document.getElementById('scale-select');
-const fretboardContainer = document.getElementById('fretboard-container');
-
-const scaleOptionsMap = {
-  major: ['Major','Pentatonic','Blues'],
-  minor: ['Natural Minor','Harmonic Minor','Melodic Minor','Pentatonic','Blues'],
-  church: ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian']
-};
-
-const fretboardImageMap = {
-  'C-major-major': 'C_major_fretboard_reversed.png'
-};
-
-function updateScaleOptions() {
-  const type = document.getElementById('type-select').value;
-  const opts = scaleOptionsMap[type] || [];
-  scaleSelect.innerHTML = '';
-  opts.forEach(opt => {
-    const o = document.createElement('option');
-    o.text = opt;
-    o.value = opt.toLowerCase().replace(/ /g,'-');
-    scaleSelect.add(o);
-  });
-  scaleSelect.selectedIndex = 0;
-}
-
-function updateFretboard(){
-  const key = document.getElementById('key-select').value;
-  const type = document.getElementById('type-select').value;
-  const scale = document.getElementById('scale-select').value;
-  const imgKey = `${key}-${type}-${scale}`;
-  const src = fretboardImageMap[imgKey];
-  fretboardContainer.innerHTML='';
-  if(src){
-    const img=document.createElement('img');
-    img.id='fretboard'; img.src=src; img.alt=imgKey;
-    fretboardContainer.appendChild(img);
-  }else{
-    const ph=document.createElement('div'); ph.className='placeholder';
-    ph.textContent='Image not available'; fretboardContainer.appendChild(ph);
-  }
-}
-
-updateScaleOptions();
-updateFretboard();
-</script>
+        keySelect.addEventListener("change", function () {
+            const key = keySelect.value;
+            const imageName = imageMap[key];
+            img.src = "images/" + imageName;
+        });
+    </script>
 </body>
 </html>
